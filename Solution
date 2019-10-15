@@ -1,0 +1,165 @@
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Collections;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using System.Text;
+using System;
+
+class Solution {
+
+    // Complete the queensAttack function below.
+    static int queensAttack(int n, int k, int r_q, int c_q, int[][] obstacles) {
+        //r_q = queen row, c_q queen column, n = board size, k = num of obsticles
+        int count = 0; // number of free rows
+        int[,] chess = new int [n,n];
+        int b = 0; // int for loops
+        int closser = 0; // which x or y is closser to the edge
+        int far = 0; // which x or y is far from the edge
+        if (n == 1){ // chess is too small
+            return 0;
+        }
+        if(n * n == k +1 ){ // quinn is surrounded by traps
+            return 0;
+        } 
+        if (k > 0){ // laydown the traps in array = num 1
+            for(int a = 0; a < k; a++){
+                int trapy = obstacles [a][0];
+                int trapx = obstacles [a][1];
+                chess[trapy-1,trapx-1] = 1;
+            }
+        }
+
+        for( b = r_q; b < n; b++){// y++
+            if (chess[b,c_q -1] == 1){
+                break;
+            } else {
+                count++; 
+            }
+        }
+         for( b = r_q -2 ; b >= 0; b--){// y--
+            if (chess[b,c_q -1] == 1){
+                break;
+            } else {
+                count++;
+            }
+        }
+        for( b = c_q -2 ; b >= 0; b--){// x--
+            if (chess[r_q -1,b] == 1){
+                break;
+            } else {
+                count++;
+            }
+        }
+        for( b = c_q; b < n; b++){// x++
+            if (chess[r_q -1, b] == 1){
+                break;
+            } else {
+                count++;
+            }
+        }
+        if (r_q -1 < c_q -1){  //calculate how close you are to the wall
+            closser = r_q-1;
+            far = c_q -1;
+        } else {
+            closser = c_q -1;
+            far = r_q -1;
+        }
+        
+        for( b = closser; b > 0; b--){// x - y
+            if (chess[(r_q-1) -b, (c_q-1) -b] == 1){
+                break;
+            } else {
+                count++;
+            }
+        }
+        if (r_q > c_q){
+            closser = r_q;
+            far = c_q;
+        } else {
+            closser = c_q;
+            far = r_q;
+        }
+        
+        for( b = 1; closser < n; b++){// x + y
+            if (chess[(r_q-1) +b, (c_q-1) +b] == 1){
+                break;
+            } else {
+                count++;
+                closser++;
+            }
+        }
+        
+        if (n - r_q < n - c_q){
+            closser = n- r_q;
+            far = n - c_q;
+        } else {
+            closser = n-c_q;
+            far = n - r_q;
+        }
+        
+        for( b = far; b > 0; b--){// y - x
+            if (chess[(r_q-1) -b, (c_q -1) +b] == 1){
+                break;
+            } else {
+                count++;
+            }
+        }
+        if (n - r_q < n - (c_q - 2)){
+            closser = n - r_q;
+            far = n - (c_q - 2);
+        } else {
+            closser = n-(c_q - 2);
+            far = n - r_q;
+        }
+        
+        for( b = closser; b > 0; b--){// y + x
+            if (chess[(r_q-1) +b, (c_q -1) -b] == 1){
+                break;
+            } else {
+                count++;
+            }
+        }
+        
+        
+        return count;
+
+
+
+    }
+
+    static void Main(string[] args) {
+        TextWriter textWriter = new StreamWriter(@System.Environment.GetEnvironmentVariable("OUTPUT_PATH"), true);
+
+        string[] nk = Console.ReadLine().Split(' ');
+
+        int n = Convert.ToInt32(nk[0]);
+
+        int k = Convert.ToInt32(nk[1]);
+
+        string[] r_qC_q = Console.ReadLine().Split(' ');
+
+        int r_q = Convert.ToInt32(r_qC_q[0]);
+
+        int c_q = Convert.ToInt32(r_qC_q[1]);
+
+        int[][] obstacles = new int[k][];
+
+        for (int i = 0; i < k; i++) {
+            obstacles[i] = Array.ConvertAll(Console.ReadLine().Split(' '), obstaclesTemp => Convert.ToInt32(obstaclesTemp));
+        }
+
+        int result = queensAttack(n, k, r_q, c_q, obstacles);
+
+        textWriter.WriteLine(result);
+
+        textWriter.Flush();
+        textWriter.Close();
+    }
+}
